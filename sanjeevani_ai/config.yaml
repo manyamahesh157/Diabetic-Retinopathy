@@ -1,0 +1,100 @@
+# Sanjeevani-AI Configuration
+system:
+  app_name: "Sanjeevani-AI"
+  subtitle: "Clinically-Grounded Explainable AI for Diabetic Retinopathy Screening"
+  version: "1.0.0-hackathon-rc1"
+  device: "cpu"
+
+imaging:
+  img_size: 384
+  color_normalization: "ben_graham"
+  clahe_clip_limit: 2.0
+  clahe_grid_size: [8, 8]
+
+quality_gate:
+  min_laplacian_var: 45.0          # Below this = excessively blurry
+  min_mean_brightness: 20.0        # Below this = underexposed
+  max_mean_brightness: 215.0       # Above this = overexposed
+  max_glare_percentage: 8.0        # Max percentage of over-saturated white pixels (>245)
+  min_fov_fraction: 0.18           # Minimum area occupied by retinal circle
+  min_rb_ratio: 1.65               # Retinal hemoglobin chromaticity (R/B ratio) to reject external eyes
+
+concepts:
+  catalog:
+    - id: "microaneurysms"
+      name: "Microaneurysms"
+      description: "Tiny red capillary outpouchings; earliest clinical sign of NPDR"
+      status: "IMPLEMENTED"
+      dataset_source: "IDRiD Lesion Annotations"
+      weight_npdr: 0.25
+    - id: "hemorrhages"
+      name: "Retinal Hemorrhages"
+      description: "Dot, blot, or flame-shaped hemorrhages within retinal layers"
+      status: "IMPLEMENTED"
+      dataset_source: "IDRiD Lesion Annotations"
+      weight_npdr: 0.30
+    - id: "hard_exudates"
+      name: "Hard Exudates"
+      description: "Lipid and lipoprotein deposits, sharp yellow borders"
+      status: "IMPLEMENTED"
+      dataset_source: "IDRiD Lesion Annotations"
+      weight_npdr: 0.25
+    - id: "cotton_wool_spots"
+      name: "Cotton-Wool Spots (Soft Exudates)"
+      description: "Micro-infarcts of the nerve fiber layer, fluffy white appearance"
+      status: "IMPLEMENTED"
+      dataset_source: "IDRiD Lesion Annotations"
+      weight_npdr: 0.15
+    - id: "venous_beading"
+      name: "Venous Beading"
+      description: "Irregular caliber and sausage-like segmentation of retinal veins"
+      status: "EXPERIMENTAL"
+      dataset_source: "Weakly-supervised / Clinical Heuristic"
+      weight_npdr: 0.10
+    - id: "irma"
+      name: "IRMA (Intraretinal Microvascular Abnormalities)"
+      description: "Shunt vessels spanning arteriolar to venular circulation"
+      status: "EXPERIMENTAL"
+      dataset_source: "Weakly-supervised / Clinical Heuristic"
+      weight_npdr: 0.10
+    - id: "neovascularization"
+      name: "Neovascularization (PDR Marker)"
+      description: "Fragile new vessels on disc (NVD) or elsewhere (NVE); hallmark of PDR"
+      status: "IMPLEMENTED"
+      dataset_source: "APTOS / IDRiD High-Grade Segments"
+      weight_npdr: 0.40
+    - id: "macular_edema_risk"
+      name: "Macular Edema Involvement"
+      description: "Exudates or edema within 1 disc diameter of foveal center"
+      status: "IMPLEMENTED"
+      dataset_source: "Geometric Fovea Localization + Hard Exudate Co-occurrence"
+      weight_npdr: 0.20
+
+model:
+  backbone: "efficientnet_b0"
+  pretrained: true
+  dropout_p: 0.30
+  num_classes: 5
+  class_names:
+    - "No DR (Grade 0)"
+    - "Mild NPDR (Grade 1)"
+    - "Moderate NPDR (Grade 2)"
+    - "Severe NPDR (Grade 3)"
+    - "Proliferative DR (Grade 4)"
+
+uncertainty:
+  mc_dropout_passes: 20
+  tta_variants: 5
+  entropy_low_threshold: 0.50
+  entropy_high_threshold: 0.85
+  max_variance_low: 0.03
+  high_uncertainty_action: "Mandatory human review recommended"
+
+xai:
+  ig_steps: 30
+  agreement_threshold: 0.35
+  cam_alpha: 0.45
+
+reporting:
+  institution_name: "Sanjeevani Tele-Ophthalmology Screening Network"
+  disclaimer: "RESEARCH & SCREENING PROTOTYPE ONLY: This software is an assistive screening aid and NOT a diagnostic medical device. It does not replace clinical examination by an ophthalmologist. All abnormal, borderline, or high-uncertainty findings require in-person clinical slit-lamp/indirect ophthalmoscopy confirmation."

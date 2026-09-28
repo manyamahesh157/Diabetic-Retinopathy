@@ -1,0 +1,29 @@
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*.class
+*.so
+.Python
+
+# Testing & Linting
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local build artifacts, shortcuts & archives
+Desktop/
+*.lnk
+*.zip
+
+# Streamlit local state
+.streamlit/secrets.toml
+
+# System files
+.DS_Store
+Thumbs.db
